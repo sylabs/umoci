@@ -1,3 +1,39 @@
+# umoci Fork for Singularity
+
+This is a fork of openSUSE/umoci that is required for sylabs/singularity.
+
+The tag `v0.4.2+singularity1` is the upstream `v0.4.2` version of umoci, with
+patches required for Singularity applied.
+
+Singularity requires this fork, as although the patches have been merged into
+umoci upstream, newer versions of umoci bring in dependencies that conflict with
+other libraries that Singularity is using. See https://github.com/sylabs/singularity/pull/4209. The main issue is around rdma/cgroups and newer `image-spec`.
+
+## Included Patches
+
+### (1) tar_extract: only warn for forbidden xattrs
+
+https://github.com/openSUSE/umoci/commit/72ae591149af4a819e680a8f157a59cda2be6a26
+
+This fixes the Singularity issue: https://github.com/sylabs/singularity/issues/4578
+
+In umoci 0.4.2 rootless mode currently warns if a forbidden xattr is seen, while
+extractions as root error out. Make root extractions warn, so that
+docker images such as cern/sl6-base:latest can be extracted as root
+without failing due to this error.
+
+### (2) tar_extract: don't error on fs without xattr support
+
+https://github.com/openSUSE/umoci/commit/3335a0dd0c582f2c6ea9fa12a658129a9c7572ac
+
+This fixes the Singularity issue: https://github.com/sylabs/singularity/issues/4593
+
+If we are extracting to a filesystem that does not support xattrs, make
+sure that an ENTOSUP from clearxattr or listxattr results in a warning,
+not an error.
+
+-----
+
 [![umoci](/contrib/logo/umoci-black.png)][umoci-site]
 
 [![Release](https://img.shields.io/github/release/openSUSE/umoci.svg)](https://github.com/openSUSE/umoci/releases/latest)
